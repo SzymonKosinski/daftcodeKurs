@@ -31,6 +31,7 @@ def authorization(password ="", password_hash ="", response = Response):
     encrypted_password=hashlib.sha512(password.encode('utf-8')).hexdigest()
     if encrypted_password!=password_hash:
         raise HTTPException(status_code=401, detail="unathorized password")
+    elif password=="":
+        raise HTTPException(status_code=401, detail="unathorized password")
     return {"item": "lol"}
-
 #uvicorn main:app
