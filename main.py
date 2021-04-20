@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Response
 import hashlib
 from pydantic import BaseModel
 app = FastAPI()
@@ -26,13 +26,13 @@ def root_delete():
 def root_post():
     return {"method": "POST"}
 
-@app.get("/auth")
-def authorization(password, password_hash):
+@app.get("/auth", status_code=204)
+def authorization(password : str, password_hash : str, response : Response):
     encrypted_password=hashlib.sha256(password.encode('utf-8')).hexdigest()
-    if(encrypted_password==password_hash):
-        return 204
-    else:
-        return 401
+    if encrypted_password!=password_hash:
+        raise HTTPException(status_code=401, detail="unathorized password")
+    return {"item": "lol"}
+
 
 
 #uvicorn main:app
