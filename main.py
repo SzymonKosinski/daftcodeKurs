@@ -39,6 +39,12 @@ def authorization(password ="", password_hash ="", response = Response):
         raise HTTPException(status_code=401, detail="unathorized password")
     return {"item": "lol"}
 
+def number_of_letters(word):
+    result = 0
+    for character in word:
+        if character.isalpha():
+            result += 1
+    return result
 class Register(BaseModel):
     name: str
     surname: str
@@ -51,7 +57,7 @@ app.registration = dict()
 @app.post("/register", status_code=201)
 def register( register_person: Register):
     register_date = date.today()
-    days_to_add = len(register_person.name) + len(register_person.surname)
+    days_to_add = number_of_letters(register_person.name) + number_of_letters(register_person.surname)
     vaccination_date = register_date + timedelta(days_to_add)
 
     app.id_counter += 1
