@@ -43,6 +43,7 @@ class Register(BaseModel):
     name: str
     surname: str
 def number_of_letters(phrase):
+    phrase=phrase.lower()
     lista=[]
     warunek=True
     lista.append(phrase[0])
@@ -80,3 +81,4 @@ def register( register_person: Register):
 
 
 #uvicorn main:app
+#print(number_of_letters("ABAABABa"))
