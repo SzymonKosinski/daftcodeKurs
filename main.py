@@ -21,10 +21,9 @@ def root_Options():
 def root_delete():
     return {"method": "DELETE"}
 
-@app.post('/method',status_code=201)
+@app.post('/method', status_code=201)
 def root_post():
     return {"method": "POST"}
-
 
 
 #uvicorn main:app
