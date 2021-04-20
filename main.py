@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Response, status
 import hashlib
 from datetime import date, timedelta
 from pydantic import BaseModel
@@ -54,13 +54,24 @@ class Register(BaseModel):
 
 app.id_counter = 0
 app.registration = dict()
-@app.post("/register", status_code=201)
-def register( register_person: Register):
+class Register(BaseModel):
+    name: str
+    surname: str
+
+
+app.id_counter = 0
+app.registration = dict()
+
+
+@app.post("/register")
+def register(response: Response, register_person: Register):
     register_date = date.today()
     days_to_add = number_of_letters(register_person.name) + number_of_letters(register_person.surname)
     vaccination_date = register_date + timedelta(days_to_add)
 
     app.id_counter += 1
+
+    response.status_code = status.HTTP_201_CREATED
     data_of_person_to_be_registered = dict()
     data_of_person_to_be_registered["id"] = app.id_counter
     data_of_person_to_be_registered["name"] = register_person.name
@@ -70,6 +81,7 @@ def register( register_person: Register):
     app.registration[app.id_counter] = data_of_person_to_be_registered
 
     return data_of_person_to_be_registered
+
 
 @app.get("/patient/{id}")
 def patient(response: Response, id: int):
