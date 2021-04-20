@@ -28,7 +28,7 @@ def root_post():
 
 @app.get("/auth", status_code=204)
 def authorization(password : str, password_hash : str, response : Response):
-    encrypted_password=hashlib.sha256(password.encode('utf-8')).hexdigest()
+    encrypted_password=hashlib.sha512(password.encode('utf-8')).hexdigest()
     if encrypted_password!=password_hash:
         raise HTTPException(status_code=401, detail="unathorized password")
     return {"item": "lol"}
