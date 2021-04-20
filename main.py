@@ -42,14 +42,29 @@ def authorization(password ="", password_hash ="", response = Response):
 class Register(BaseModel):
     name: str
     surname: str
+def number_of_letters(phrase):
+    lista=[]
+    warunek=True
+    lista.append(phrase[0])
+    for i in range(len(phrase)):
+        warunek=True
+        for j in range(len(lista)):
+            if(phrase[i]==lista[j]):
+                warunek=False
+                break;
+        if warunek==True:
+            lista.append(phrase[i])
+
+    return len(lista)
+
 
 
 app.id_counter = 0
 app.registration = dict()
 @app.post("/register", status_code=201)
-def register(response: Response, register_person: Register):
+def register( register_person: Register):
     register_date = date.today()
-    days_to_add = len(register_person.name) + len(register_person.surname)
+    days_to_add = number_of_letters(register_person.name) + number_of_letters(register_person.surname)
     vaccination_date = register_date + timedelta(days_to_add)
 
     app.id_counter += 1
