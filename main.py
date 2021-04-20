@@ -54,14 +54,6 @@ class Register(BaseModel):
 
 app.id_counter = 0
 app.registration = dict()
-class Register(BaseModel):
-    name: str
-    surname: str
-
-
-app.id_counter = 0
-app.registration = dict()
-
 
 @app.post("/register")
 def register(response: Response, register_person: Register):
