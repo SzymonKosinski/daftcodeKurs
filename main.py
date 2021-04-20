@@ -71,5 +71,14 @@ def register( register_person: Register):
 
     return data_of_person_to_be_registered
 
+@app.get("/patient/{id}")
+def patient(response: Response, id: int):
+    if id > app.id_counter:  # nie ma takiego pacjenta
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return response.status_code
+    elif id < 1:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response.status_code
 
+    return app.registration[id]
 #uvicorn main:app
