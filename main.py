@@ -1,8 +1,15 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 app = FastAPI()
 
-@app.get("/")
+
+
+
+@app.get('/method')
 def root():
-    return {"message": "Hello world!"}
+    return {"method": "GET"}
+
+
 
 root()
+#uvicorn main:app
