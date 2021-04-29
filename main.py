@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, HTTPException, Response, status, Request
+from fastapi.responses import HTMLResponse
 import hashlib
 from datetime import date, timedelta
 from pydantic import BaseModel
@@ -6,7 +7,6 @@ from pydantic import BaseModel
 
 
 app = FastAPI()
-
 
 @app.get("/method")
 def method():
@@ -85,4 +85,18 @@ def patient(response: Response, id: int):
         return response.status_code
 
     return app.registration[id]
+
+
+@app.get("/hello",  response_class=HTMLResponse)
+def message():
+    return '''
+       <html>
+           <head>
+               <title>Some HTML in here</title>
+           </head>
+           <body>
+               <h1>Hello! Today date is {aktualnaData}</h1>
+           </body>
+       </html>
+       '''.format(aktualnaData=date.today())
 #uvicorn main:app
