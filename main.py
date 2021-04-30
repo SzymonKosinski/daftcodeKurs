@@ -118,7 +118,7 @@ def logowanie(login: str):
         raise HTTPException(status_code=401, detail="unathorized password")
     else:
         response = JSONResponse(content=loginBase64)
-        response.set_cookie(key="fakesession", value="fake-cookie-session-value")
+        response.set_cookie(key="session_token", value="starywiniary")
 
 
 
