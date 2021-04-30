@@ -123,7 +123,7 @@ def logowanie(login: str):
 
 
 @app.post("/login_token")
-def weryfikacja(login : str):
+def weryfikacja(login=""):
     b = bytes(login, 'utf-8')
     loginBase64 = base64.b64encode(b)
     klucz = "4dm1n:NotSoSecurePa$$"
