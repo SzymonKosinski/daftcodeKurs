@@ -1,12 +1,12 @@
 from fastapi import FastAPI, HTTPException, Response, status, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 import hashlib
+import base64
 from datetime import date, timedelta
 from pydantic import BaseModel
 
-
-
 app = FastAPI()
+
 
 @app.get("/method")
 def method():
@@ -18,26 +18,31 @@ def method():
 def root_put():
     return {"method": "PUT"}
 
+
 @app.options('/method')
 def root_Options():
     return {"method": "OPTIONS"}
+
 
 @app.delete('/method')
 def root_delete():
     return {"method": "DELETE"}
 
+
 @app.post('/method', status_code=201)
 def root_post():
     return {"method": "POST"}
 
+
 @app.get("/auth", status_code=204)
-def authorization(password ="", password_hash ="", response = Response):
-    encrypted_password=hashlib.sha512(password.encode('utf-8')).hexdigest()
-    if encrypted_password!=password_hash:
+def authorization(password="", password_hash="", response=Response):
+    encrypted_password = hashlib.sha512(password.encode('utf-8')).hexdigest()
+    if encrypted_password != password_hash:
         raise HTTPException(status_code=401, detail="unathorized password")
-    elif password=="":
+    elif password == "":
         raise HTTPException(status_code=401, detail="unathorized password")
     return {"item": "lol"}
+
 
 def number_of_letters(word):
     result = 0
@@ -45,15 +50,16 @@ def number_of_letters(word):
         if character.isalpha():
             result += 1
     return result
+
+
 class Register(BaseModel):
     name: str
     surname: str
 
 
-
-
 app.id_counter = 0
 app.registration = dict()
+
 
 @app.post("/register")
 def register(response: Response, register_person: Register):
@@ -87,7 +93,7 @@ def patient(response: Response, id: int):
     return app.registration[id]
 
 
-@app.get("/hello",  response_class=HTMLResponse)
+@app.get("/hello", response_class=HTMLResponse)
 def message():
     return '''
        <html>
@@ -99,4 +105,34 @@ def message():
            </body>
        </html>
        '''.format(aktualnaData=date.today())
-#uvicorn main:app
+
+
+@app.post("/login_session")
+def logowanie(login: str):
+    b=bytes(login, 'utf-8')
+    loginBase64 = base64.b64encode(b)
+    klucz="4dm1n:NotSoSecurePa$$"
+    b=bytes(klucz, 'utf-8')
+    kluczBase64=base64.b64encode(b)
+    if kluczBase64!=loginBase64:
+        raise HTTPException(status_code=401, detail="unathorized password")
+    else:
+        response = JSONResponse(content=loginBase64)
+        response.set_cookie(key="fakesession", value="fake-cookie-session-value")
+
+
+
+@app.post("/login_token")
+def weryfikacja(login : str):
+    b = bytes(login, 'utf-8')
+    loginBase64 = base64.b64encode(b)
+    klucz = "4dm1n:NotSoSecurePa$$"
+    b = bytes(klucz, 'utf-8')
+    kluczBase64 = base64.b64encode(b)
+    if kluczBase64 != loginBase64:
+        raise HTTPException(status_code=401, detail="unathorized password")
+    else:
+        return "{token:{}}".format(login)
+
+
+# uvicorn main:app
