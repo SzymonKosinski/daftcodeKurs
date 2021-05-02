@@ -109,16 +109,22 @@ def message():
 
 
 @app.post("/login_session", status_code=201)
-def logowanie(login: str=""):
+def logowanie(login: str="", haslo: str=""):
     b=bytes(login, 'utf-8')
     loginBase64 = base64.b64encode(b)
-    klucz="4dm1n:NotSoSecurePa$$"
-    b=bytes(klucz, 'utf-8')
-    kluczBase64=base64.b64encode(b)
-    kluczBase64 = kluczBase64.decode('utf-8')
+    b=bytes(haslo, 'utf-8')
+    hasloBase64 = base64.b64encode(b)
+    kluczLogin="4dm1n"
+    kluczHaslo="NotSoSecurePa$$"
+    b=bytes(kluczLogin, 'utf-8')
+    kluczLogin=base64.b64encode(b)
+    b=bytes(kluczHaslo, 'utf-8')
+    kluczHaslo=base64.b64encode(b)
+    kluczLogin = kluczLogin.decode('utf-8')
+    kluczHaslo = kluczHaslo.decode('utf-8')
     loginBase64 = loginBase64.decode('utf-8')
-    #print(kluczBase64)
-    if kluczBase64==loginBase64 or login==kluczBase64:
+    hasloBase64 = hasloBase64.decode('utf-8')
+    if kluczLogin==loginBase64 and kluczHaslo==hasloBase64:
         response = JSONResponse(content=loginBase64)
         response.set_cookie(key="session_token", value="starywiniary")
         return response
@@ -144,6 +150,6 @@ def weryfikacja(login: str=""):
         raise HTTPException(status_code=401, detail="unathorized password")
 
 
-logowanie('4dm1n:NotSoSecurePa$$')
+logowanie('4dm1n', 'NotSoSecurePa$$')
 weryfikacja("NGRtMW46Tm90U29TZWN1cmVQYSQk")
 # uvicorn main:app
