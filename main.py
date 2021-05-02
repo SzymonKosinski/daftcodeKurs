@@ -117,10 +117,11 @@ def logowanie(login: str=""):
     kluczBase64=base64.b64encode(b)
     kluczBase64 = kluczBase64.decode('utf-8')
     loginBase64 = loginBase64.decode('utf-8')
-    print(kluczBase64)
+    #print(kluczBase64)
     if kluczBase64==loginBase64 or login==kluczBase64:
         response = JSONResponse(content=loginBase64)
         response.set_cookie(key="session_token", value="starywiniary")
+        return response
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
 
@@ -135,7 +136,7 @@ def weryfikacja(login: str=""):
     kluczBase64 = base64.b64encode(b)
     kluczBase64 = kluczBase64.decode('utf-8')
     loginBase64 = loginBase64.decode('utf-8')
-    print(kluczBase64)
+    #print(kluczBase64)
     if kluczBase64 == loginBase64 or login==kluczBase64:
         token = klucz
         return "token:"f"{token}"
