@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException, Response, status, Request
+from django.middleware import security
+from fastapi import FastAPI, HTTPException, Response, status, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 import hashlib
 import base64
 from datetime import date, timedelta
+
 from pydantic import BaseModel
-import unittest
+
 
 app = FastAPI()
 
@@ -109,27 +111,16 @@ def message():
 
 
 @app.post("/login_session", status_code=201)
-def logowanie(login: str="", haslo: str=""):
-    b=bytes(login, 'utf-8')
-    loginBase64 = base64.b64encode(b)
-    b=bytes(haslo, 'utf-8')
-    hasloBase64 = base64.b64encode(b)
-    kluczLogin="4dm1n"
-    kluczHaslo="NotSoSecurePa$$"
-    b=bytes(kluczLogin, 'utf-8')
-    kluczLogin=base64.b64encode(b)
-    b=bytes(kluczHaslo, 'utf-8')
-    kluczHaslo=base64.b64encode(b)
-    kluczLogin = kluczLogin.decode('utf-8')
-    kluczHaslo = kluczHaslo.decode('utf-8')
-    loginBase64 = loginBase64.decode('utf-8')
-    hasloBase64 = hasloBase64.decode('utf-8')
-    if kluczLogin==loginBase64 and kluczHaslo==hasloBase64:
-        response = JSONResponse(content=loginBase64)
+def logowanie(login: str="", haslo: str="",):
+    kluczLogin = "4dm1n"
+    kluczHaslo = 'NotSoSecurePa$$'
+    if kluczLogin==login and kluczHaslo==haslo:
+        response = JSONResponse(content=login)
         response.set_cookie(key="session_token", value="starywiniary")
         return response
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
+
 
 
 
