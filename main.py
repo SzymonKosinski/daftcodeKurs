@@ -84,18 +84,10 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
 
 
 @app.post("/login_token", status_code=201 )
-def weryfikacja(login: str=""):
-    b = bytes(login, 'utf-8')
-    loginBase64 = base64.b64encode(b)
-    klucz = "4dm1n:NotSoSecurePa$$"
-    b = bytes(klucz, 'utf-8')
-    kluczBase64 = base64.b64encode(b)
-    kluczBase64 = kluczBase64.decode('utf-8')
-    loginBase64 = loginBase64.decode('utf-8')
-    #print(kluczBase64)
-    if kluczBase64 == loginBase64 or login==kluczBase64:
-        token = klucz
-        return "token:"f"{token}"
+def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
+        token_value = "dwa"
+        return "token:"f"{token_value}"
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
 
