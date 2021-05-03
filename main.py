@@ -69,7 +69,7 @@ def message():
        </html>'''.format(aktualnaData=date.today())
 
 
-'''@app.post("/login_session", status_code=201)
+@app.post("/login_session", status_code=201)
 def logowanie(login: str="", haslo: str="",):
     response = Response()
     kluczLogin = "4dm1n"
@@ -82,7 +82,7 @@ def logowanie(login: str="", haslo: str="",):
         token_login_session = "stary winiary"
         return response
     else:
-        raise HTTPException(status_code=401, detail="unathorized password")'''
+        raise HTTPException(status_code=402, detail="unathorized password")
 
 
 
