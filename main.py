@@ -86,8 +86,11 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
 @app.post("/login_token", status_code=201 )
 def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
+        response.status_code = status.HTTP_201_CREATED
         token_value = "dwa"
-        return "token:"f"{token_value}"
+        global token_login_token
+        token_login_token = token_value
+        return {"token": token_value}
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
 
