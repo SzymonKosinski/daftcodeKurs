@@ -1,5 +1,8 @@
-from fastapi import FastAPI, HTTPException, Response, status, Request, Depends
+from fastapi import FastAPI, HTTPException, Response, status, Request, Depends, security
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import Depends
 import hashlib
 import base64
 import http.cookies
@@ -66,17 +69,16 @@ def message():
            </body>
        </html>'''.format(aktualnaData=date.today())
 
-
+security = HTTPBasic()
 @app.post("/login_session", status_code=201)
-def logowanie(response: Response,login: str="", haslo:str = ""):
-    auth=HTTPBasicAuth(login, haslo)
-    if auth.username=="4dm1n" and auth.password=="NotSoSecurePa$$":
+def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.set_cookie(key="session_token", value="stary winiary")
         global token_login_session
         token_login_session = "stary winiary"
         return response
     else:
-        raise HTTPException(status_code=401, detail="unathorized password")
+        response.status_code = status.HTTP_401_UNAUTHORIZED
 
 
 
