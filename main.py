@@ -1,13 +1,11 @@
-from django.middleware import security
 from fastapi import FastAPI, HTTPException, Response, status, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 import hashlib
 import base64
 import http.cookies
 from datetime import date, timedelta
-
+from pip._vendor.requests.auth import HTTPBasicAuth
 from pydantic import BaseModel
-
 
 app = FastAPI()
 
@@ -70,19 +68,16 @@ def message():
 
 
 @app.post("/login_session", status_code=201)
-def logowanie(login: str="", haslo: str="",):
+def logowanie(login: str="", haslo:str = ""):
+    auth=HTTPBasicAuth(login, haslo)
     response = Response()
-    kluczLogin = "4dm1n"
-    kluczHaslo = "NotSoSecurePa$$"
-    print(login)
-    print(haslo)
-    if kluczLogin==login and kluczHaslo==haslo:
+    if auth.username=="4dm1n" and auth.password=="NotSoSecurePa$$":
         response.set_cookie(key="session_token", value="stary winiary")
         global token_login_session
         token_login_session = "stary winiary"
         return response
     else:
-        raise HTTPException(status_code=402, detail="unathorized password")
+        raise HTTPException(status_code=401, detail="unathorized password")
 
 
 
@@ -104,6 +99,6 @@ def weryfikacja(login: str=""):
         raise HTTPException(status_code=401, detail="unathorized password")
 
 
-logowanie("4dm1n", "NotSoSecurePa$$")
+logowanie( "4dm1n", "NotSoSecurePa$$")
 weryfikacja("NGRtMW46Tm90U29TZWN1cmVQYSQk")
 # uvicorn main:app
