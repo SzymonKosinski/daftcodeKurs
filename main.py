@@ -68,9 +68,8 @@ def message():
 
 
 @app.post("/login_session", status_code=201)
-def logowanie(login: str="", haslo:str = ""):
+def logowanie(response: Response,login: str="", haslo:str = ""):
     auth=HTTPBasicAuth(login, haslo)
-    response = Response()
     if auth.username=="4dm1n" and auth.password=="NotSoSecurePa$$":
         response.set_cookie(key="session_token", value="stary winiary")
         global token_login_session
@@ -99,6 +98,4 @@ def weryfikacja(login: str=""):
         raise HTTPException(status_code=401, detail="unathorized password")
 
 
-logowanie( "4dm1n", "NotSoSecurePa$$")
-weryfikacja("NGRtMW46Tm90U29TZWN1cmVQYSQk")
 # uvicorn main:app
