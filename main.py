@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Response, status, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 import hashlib
 import base64
+import http.cookies
 from datetime import date, timedelta
 
 from pydantic import BaseModel
@@ -111,12 +112,16 @@ def message():
 
 
 @app.post("/login_session", status_code=201)
-def logowanie(login: str="", haslo: str="",):
+def logowanie(login: str="", haslo: str=""):
+    response = Response()
     kluczLogin = "4dm1n"
     kluczHaslo = 'NotSoSecurePa$$'
+    print(login)
+    print(haslo)
     if kluczLogin==login and kluczHaslo==haslo:
-        response = JSONResponse(content=login)
-        response.set_cookie(key="session_token", value="starywiniary")
+        response.set_cookie(key="session_token", value="stary winiary")
+        global token_login_session
+        token_login_session = "stary winiary"
         return response
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
