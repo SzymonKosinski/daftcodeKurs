@@ -99,17 +99,23 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
 
 @app.get("/welcome_session")
 def welcome_session(response : Response, token: str = Cookie(None), format: str = ""):
-   if token not in app.access_tokens:
-       raise HTTPException(status_code=401, detail="unathorized session")
-   elif format=="":
-       return "Welcome!"
-   elif format=="json":
-       return {"message": "Welcome!"}
-   elif format=="html":
-       return ''' 
+    if token not in app.access_tokens:
+        raise HTTPException(status_code=401, detail="unathorized session")
+    elif format == "":
+        result = "Welcome!"
+        return PlainTextResponse(content=result)
+    elif format == "json":
+        result = {"message": "Welcome!"}
+        return JSONResponse(content=result)
+    elif format == "html":
+        result = ''' 
        <html>
            <h1>Welcome!</h1>
        </html>'''
+        return HTMLResponse(content=result)
+    else:
+        result = "Welcome!"
+        return PlainTextResponse(content=result)
 
 
 
