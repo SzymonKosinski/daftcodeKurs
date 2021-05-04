@@ -129,5 +129,8 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
             <h1>Welcome!</h1>
         </html>'''
         return HTMLResponse(content=result)
+    else:
+        result = "Welcome!"
+        return PlainTextResponse(content=result)
 
 # uvicorn main:app
