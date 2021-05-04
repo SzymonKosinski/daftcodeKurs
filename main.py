@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends
-from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi.responses import PlainTextResponse, JSONResponse,RedirectResponse
 from datetime import date, timedelta
 from pydantic import BaseModel
 
@@ -144,5 +144,44 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
     else:
         result = "Welcome!"
         return PlainTextResponse(content=result)
+@app.delete("/logout_session")
+def logout_session(*, response: Response, session_token: str = Cookie(None), format: str = ""):
+    if session_token not in app.access_logins:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+    else:
+        app.access_logins.clear()
+        response.status_code = status.HTTP_302_FOUND
+        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out/{session_token}&{format}"
+                                , status_code=303)
+@app.delete("/logout_token")
+def logout_session(response : Response, token: str = "", format: str = ""):
+    if token not in app.access_tokens:
+        raise HTTPException(status_code=401, detail="unathorized session")
+    else:
+        app.access_tokens.clear()
+        response.status_code = status.HTTP_302_FOUND
+        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out/{token}&{format}"
+                                ,status_code=303)
+
+@app.get("/logged_out")
+def logged_out(response: Response, format: str=""):
+    if format == "":
+        result = "Logged out!"
+        return PlainTextResponse(content=result, status_code=200)
+    elif format == "json":
+        result = {"message": "Logged out!"}
+        return JSONResponse(content=result, status_code=200)
+    elif format == "html":
+        html = f"""
+                <html>
+                    <body>
+                        <h1>Logged out!</h1>
+                    </body>
+                </html>
+                """
+        return HTMLResponse(content=html, status_code=200)
+    else:
+        result = "Logged out!"
+        return PlainTextResponse(content=result, status_code=200)
 
 # uvicorn main:app
