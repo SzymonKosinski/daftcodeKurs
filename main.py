@@ -156,8 +156,11 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
 def logout_session(*, response: Response, session_token: str = Cookie(None), format: str = ""):
     if session_token not in app.access_logins:
         response.status_code = status.HTTP_401_UNAUTHORIZED
+        for token_number in range(len(app.access_tokens)):
+            if app.access_logins[token_number]==session_token:
+                app.access_logins.pop(token_number)
     else:
-        app.access_logins.pop(2)
+        app.access_logins.pop(0)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={session_token}&format={format}"
                                 , status_code=303)
@@ -166,7 +169,9 @@ def logout_session(response : Response, token: str = "", format: str = ""):
     if token not in app.access_tokens:
         raise HTTPException(status_code=401, detail="unathorized session")
     else:
-        app.access_logins.pop(2)
+        for token_number in range(len(app.access_tokens)):
+            if app.access_tokens[token_number]==token:
+                app.access_tokens.pop(token_number)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={token}&format={format}"
                                 ,status_code=303)
