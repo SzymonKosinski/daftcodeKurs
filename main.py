@@ -86,7 +86,7 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
             app.access_logins.pop(0)
         app.access_logins.append(get_random_string())
         response.set_cookie(key="session_token", value="stary winiary")
-        return app.access_logins
+        return response
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
@@ -101,7 +101,7 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
             app.access_tokens.pop(0)
         token_value = get_random_string()
         app.access_tokens.append(token_value)
-        return app.access_tokens
+        return {"token": token_value}
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
 
