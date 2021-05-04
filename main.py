@@ -156,11 +156,12 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
 def logout_session(*, response: Response, session_token: str = Cookie(None), format: str = ""):
     if session_token not in app.access_logins:
         response.status_code = status.HTTP_401_UNAUTHORIZED
+
+    else:
         for token_number in range(len(app.access_tokens)):
             if app.access_logins[token_number]==session_token:
                 app.access_logins.pop(token_number)
                 break
-    else:
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={session_token}&format={format}"
                                 , status_code=303)
