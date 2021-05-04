@@ -77,7 +77,7 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
         response.set_cookie(key="session_token", value="stary winiary")
-        app.access_tokens.append("session_token")
+        app.access_logins.append("stary winiary")
         return response
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -98,8 +98,8 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
         raise HTTPException(status_code=401, detail="unathorized password")
 
 @app.get("/welcome_session")
-def welcome_session(response : Response, token: str = Cookie(None), format: str = ""):
-    if token not in app.access_tokens:
+def welcome_session(*, response : Response, token: str = Cookie(None), format: str = ""):
+    if token not in app.access_logins:
         raise HTTPException(status_code=401, detail="unathorized session")
     elif format == "":
         result = "Welcome!"
