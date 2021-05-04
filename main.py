@@ -86,7 +86,7 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
             app.access_logins.pop(0)
         app.access_logins.append(get_random_string())
         response.set_cookie(key="session_token", value="stary winiary")
-        return response
+        return app.access_logins
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
 
@@ -98,10 +98,10 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
         if len(app.access_tokens)==3:
-            app.access_logins.pop(0)
+            app.access_tokens.pop(0)
         token_value = get_random_string()
         app.access_tokens.append(token_value)
-        return {"token": token_value}
+        return app.access_tokens
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
 
@@ -159,6 +159,7 @@ def logout_session(*, response: Response, session_token: str = Cookie(None), for
         for token_number in range(len(app.access_tokens)):
             if app.access_logins[token_number]==session_token:
                 app.access_logins.pop(token_number)
+                break
     else:
         app.access_logins.pop(0)
         response.status_code = status.HTTP_302_FOUND
@@ -172,6 +173,7 @@ def logout_session(response : Response, token: str = "", format: str = ""):
         for token_number in range(len(app.access_tokens)):
             if app.access_tokens[token_number]==token:
                 app.access_tokens.pop(token_number)
+                break
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={token}&format={format}"
                                 ,status_code=303)
