@@ -102,7 +102,7 @@ def welcome_session(response : Response, token: str = Cookie(None), format: str 
    if token not in app.access_tokens:
        raise HTTPException(status_code=401, detail="unathorized session")
    elif format=="":
-       raise HTTPException(status_code=401, detail="unathorized session")
+       return "Welcome!"
    elif format=="json":
        return {"message": "Welcome!"}
    elif format=="html":
@@ -118,7 +118,8 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
     if token not in app.access_tokens:
         raise HTTPException(status_code=401, detail="unathorized session")
     elif format == "":
-        raise HTTPException(status_code=401, detail="unathorized session")
+        response.body="Welcome!"
+        return response.body
     elif format == "json":
         return {"message": "Welcome!"}
     elif format == "html":
