@@ -161,7 +161,6 @@ def logout_session(*, response: Response, session_token: str = Cookie(None), for
                 app.access_logins.pop(token_number)
                 break
     else:
-        app.access_logins.pop(0)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={session_token}&format={format}"
                                 , status_code=303)
