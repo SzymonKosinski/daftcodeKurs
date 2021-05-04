@@ -100,8 +100,6 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
         if len(app.access_tokens)==3:
             app.access_logins.pop(0)
         token_value = get_random_string()
-        global token_login_token
-        token_login_token = token_value
         app.access_tokens.append(token_value)
         return {"token": token_value}
     else:
@@ -159,7 +157,7 @@ def logout_session(*, response: Response, session_token: str = Cookie(None), for
     if session_token not in app.access_logins:
         response.status_code = status.HTTP_401_UNAUTHORIZED
     else:
-        app.access_logins.pop(0)
+        app.access_logins.pop(2)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={session_token}&format={format}"
                                 , status_code=303)
@@ -168,7 +166,7 @@ def logout_session(response : Response, token: str = "", format: str = ""):
     if token not in app.access_tokens:
         raise HTTPException(status_code=401, detail="unathorized session")
     else:
-        app.access_logins.pop(0)
+        app.access_logins.pop(2)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={token}&format={format}"
                                 ,status_code=303)
