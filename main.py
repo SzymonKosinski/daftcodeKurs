@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response, status, Request, Depends, security
+from fastapi import FastAPI, HTTPException, Response, status, Request, Depends, security, Cookie
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -11,6 +11,8 @@ from pip._vendor.requests.auth import HTTPBasicAuth
 from pydantic import BaseModel
 
 app = FastAPI()
+app.access_tokens = []
+
 
 def number_of_letters(word):
     result = 0
@@ -76,6 +78,7 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
         response.set_cookie(key="session_token", value="stary winiary")
+        app.access_tokens.append("session_token")
         return response
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -83,7 +86,7 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
 
 
 
-@app.post("/login_token", status_code=201 )
+@app.post("/login_token", status_code=201)
 def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
@@ -94,5 +97,34 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
 
+@app.get("/welcome_session")
+def welcome_session(response : Response, token: str = Cookie(None), format: str = ""):
+   if token not in app.access_tokens:
+       raise HTTPException(status_code=401, detail="unathorized session")
+   elif format=="":
+       raise HTTPException(status_code=401, detail="unathorized session")
+   elif format=="json":
+       return {"message": "Welcome!"}
+   elif format=="html":
+       return ''' 
+       <html>
+           <h1>Welcome!</h1>
+       </html>'''
+
+
+
+@app.get("/welcome_token")
+def welcome_token(response : Response, token: str = "", format: str = ""):
+    if token not in app.access_tokens:
+        raise HTTPException(status_code=401, detail="unathorized session")
+    elif format == "":
+        raise HTTPException(status_code=401, detail="unathorized session")
+    elif format == "json":
+        return {"message": "Welcome!"}
+    elif format == "html":
+        return ''' 
+        <html>
+            <h1>Welcome!</h1>
+        </html>'''
 
 # uvicorn main:app
