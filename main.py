@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends
-from fastapi.responses import PlainTextResponse, ORJSONResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
 from datetime import date, timedelta
 from pydantic import BaseModel
 
@@ -122,7 +122,7 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
         return PlainTextResponse(content=result)
     elif format == "json":
         result = {"message": "Welcome!"}
-        return ORJSONResponse(content=result)
+        return JSONResponse(content=result)
     elif format == "html":
         result= ''' 
         <html>
