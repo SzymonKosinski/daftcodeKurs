@@ -151,7 +151,7 @@ def logout_session(*, response: Response, session_token: str = Cookie(None), for
     else:
         app.access_logins.clear()
         response.status_code = status.HTTP_302_FOUND
-        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out/{session_token}&{format}"
+        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?{session_token}&{format}"
                                 , status_code=303)
 @app.delete("/logout_token")
 def logout_session(response : Response, token: str = "", format: str = ""):
