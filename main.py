@@ -76,8 +76,8 @@ security = HTTPBasic()
 def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
-        response.set_cookie(key="session_token", value="stary winiary")
         app.access_logins.append("stary winiary")
+        response.set_cookie(key="session_token", value="stary winiary")
         return response
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -98,24 +98,30 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
         raise HTTPException(status_code=401, detail="unathorized password")
 
 @app.get("/welcome_session")
-def welcome_session(*, response : Response, token: str = Cookie(None), format: str = ""):
-    if token not in app.access_logins:
-        raise HTTPException(status_code=401, detail="unathorized session")
-    elif format == "":
-        result = "Welcome!"
-        return PlainTextResponse(content=result)
-    elif format == "json":
-        result = {"message": "Welcome!"}
-        return JSONResponse(content=result)
-    elif format == "html":
-        result = ''' 
-       <html>
-           <h1>Welcome!</h1>
-       </html>'''
-        return HTMLResponse(content=result)
+def welcome_session(*, response: Response, session_token: str = Cookie(None), format: str = ""):
+    if session_token not in app.access_logins:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return response
     else:
-        result = "Welcome!"
-        return PlainTextResponse(content=result)
+        response.status_code = status.HTTP_200_OK
+        if format == "":
+            result = "Welcome!"
+            return PlainTextResponse(content=result, status_code=200)
+        elif format == "json":
+            result = {"message": "Welcome!"}
+            return JSONResponse(content=result, status_code=200)
+        elif format == "html":
+            html = f"""
+                    <html>
+                        <body>
+                            <h1>Welcome!</h1>
+                        </body>
+                    </html>
+                    """
+            return HTMLResponse(content=html, status_code=200)
+        else:
+            result = "Welcome!"
+            return PlainTextResponse(content=result, status_code=200)
 
 
 
