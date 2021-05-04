@@ -1,5 +1,3 @@
-import json
-
 from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -7,12 +5,20 @@ from fastapi import Depends
 from fastapi.responses import PlainTextResponse, JSONResponse,RedirectResponse
 from datetime import date, timedelta
 from pydantic import BaseModel
+import random
+import string
 
+def get_random_string():
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(29))
+    return result_str
+
+
+print(get_random_string())
 app = FastAPI()
 app.access_tokens = []
 app.access_logins = []
-
-
 def number_of_letters(word):
     result = 0
     for character in word:
@@ -76,7 +82,9 @@ security = HTTPBasic()
 def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
-        app.access_logins.append("stary winiary")
+        if len(app.access_logins)==3:
+            app.access_logins.pop(0)
+        app.access_logins.append(get_random_string())
         response.set_cookie(key="session_token", value="stary winiary")
         return response
     else:
@@ -89,7 +97,9 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
 def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
         response.status_code = status.HTTP_201_CREATED
-        token_value = "dwa"
+        if len(app.access_tokens)==3:
+            app.access_logins.pop(0)
+        token_value = get_random_string()
         global token_login_token
         token_login_token = token_value
         app.access_tokens.append(token_value)
@@ -149,7 +159,7 @@ def logout_session(*, response: Response, session_token: str = Cookie(None), for
     if session_token not in app.access_logins:
         response.status_code = status.HTTP_401_UNAUTHORIZED
     else:
-        app.access_logins.clear()
+        app.access_logins.pop(0)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={session_token}&format={format}"
                                 , status_code=303)
@@ -158,7 +168,7 @@ def logout_session(response : Response, token: str = "", format: str = ""):
     if token not in app.access_tokens:
         raise HTTPException(status_code=401, detail="unathorized session")
     else:
-        app.access_tokens.clear()
+        app.access_logins.pop(0)
         response.status_code = status.HTTP_302_FOUND
         return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={token}&format={format}"
                                 ,status_code=303)
