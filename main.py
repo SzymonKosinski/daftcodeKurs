@@ -69,13 +69,13 @@ def message():
            </body>
        </html>'''.format(aktualnaData=date.today())
 
+
 security = HTTPBasic()
-@app.post("/login_session", status_code=201)
+@app.post("/login_session")
 def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
+        response.status_code = status.HTTP_201_CREATED
         response.set_cookie(key="session_token", value="stary winiary")
-        global token_login_session
-        token_login_session = "stary winiary"
         return response
     else:
         response.status_code = status.HTTP_401_UNAUTHORIZED
