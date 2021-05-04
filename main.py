@@ -151,7 +151,7 @@ def logout_session(*, response: Response, session_token: str = Cookie(None), for
     else:
         app.access_logins.clear()
         response.status_code = status.HTTP_302_FOUND
-        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?{session_token}&{format}"
+        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={session_token}&format={format}"
                                 , status_code=303)
 @app.delete("/logout_token")
 def logout_session(response : Response, token: str = "", format: str = ""):
@@ -160,7 +160,7 @@ def logout_session(response : Response, token: str = "", format: str = ""):
     else:
         app.access_tokens.clear()
         response.status_code = status.HTTP_302_FOUND
-        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?{token}&{format}"
+        return RedirectResponse(f"https://daftcodeplikacja.herokuapp.com/logged_out?token={token}&format={format}"
                                 ,status_code=303)
 
 @app.get("/logged_out")
@@ -183,5 +183,4 @@ def logged_out(response: Response, format: str=""):
     else:
         result = "Logged out!"
         return PlainTextResponse(content=result, status_code=200)
-
 # uvicorn main:app
