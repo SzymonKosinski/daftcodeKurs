@@ -93,17 +93,23 @@ def logowanie(response: Response, credentials: HTTPBasicCredentials = Depends(se
 
 
 
-@app.post("/login_token", status_code=201)
-def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    if credentials.username=="4dm1n" and credentials.password=="NotSoSecurePa$$":
-        response.status_code = status.HTTP_201_CREATED
-        if len(app.access_tokens)==3:
-            app.access_tokens.pop(0)
-        token_value = get_random_string()
-        app.access_tokens.append(token_value)
-        return {"token": token_value}
+@app.post("/login_token")
+def read_current_user(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    user = credentials.username
+    password = credentials.password
+    if len(user) == 0 or len(password) == 0:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+    if user != "4dm1n" or password != "NotSoSecurePa$$":
+        response.status_code = status.HTTP_401_UNAUTHORIZED
     else:
-        raise HTTPException(status_code=401, detail="unathorized password")
+        response.status_code = status.HTTP_201_CREATED
+        token_value = get_random_string()
+        # maksymalnie 3 użytkowników
+        if len(app.access_logins) == 3:
+            app.access_logins.pop(0)
+
+        app.access_logins.append(token_value)
+        return {"token": token_value}
 
 @app.get("/welcome_session")
 def welcome_session(*, response: Response, session_token: str = Cookie(None), format: str = ""):
