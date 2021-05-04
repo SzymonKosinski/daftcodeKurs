@@ -1,17 +1,16 @@
-from fastapi import FastAPI, HTTPException, Response, status, Request, Depends, security, Cookie
-from fastapi.responses import HTMLResponse, JSONResponse
+import json
+
+from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends
-import hashlib
-import base64
-import http.cookies
+from fastapi.responses import PlainTextResponse, ORJSONResponse
 from datetime import date, timedelta
-from pip._vendor.requests.auth import HTTPBasicAuth
 from pydantic import BaseModel
 
 app = FastAPI()
 app.access_tokens = []
+app.access_logins = []
 
 
 def number_of_letters(word):
@@ -30,10 +29,10 @@ class Register(BaseModel):
 app.id_counter = 0
 app.registration = dict()
 
-@app.get("/method")
+@app.get("/method", response_class=PlainTextResponse)
 def method():
     app.method = "GET"
-    return {"method": app.method}
+    return {"test" : "test"}
 
 
 @app.put('/method')
@@ -93,6 +92,7 @@ def weryfikacja(response: Response, credentials: HTTPBasicCredentials = Depends(
         token_value = "dwa"
         global token_login_token
         token_login_token = token_value
+        app.access_tokens.append(token_value)
         return {"token": token_value}
     else:
         raise HTTPException(status_code=401, detail="unathorized password")
@@ -118,14 +118,16 @@ def welcome_token(response : Response, token: str = "", format: str = ""):
     if token not in app.access_tokens:
         raise HTTPException(status_code=401, detail="unathorized session")
     elif format == "":
-        response.body="Welcome!"
-        return response.body
+        result = "Welcome!"
+        return PlainTextResponse(content=result)
     elif format == "json":
-        return {"message": "Welcome!"}
+        result = {"message": "Welcome!"}
+        return ORJSONResponse(content=result)
     elif format == "html":
-        return ''' 
+        result= ''' 
         <html>
             <h1>Welcome!</h1>
         </html>'''
+        return HTMLResponse(content=result)
 
 # uvicorn main:app
