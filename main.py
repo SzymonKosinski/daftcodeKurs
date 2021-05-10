@@ -227,10 +227,9 @@ async def shutdown():
 async def categories(response: Response):
     cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
     data = await cursor.fetchall()
-    print(data)
     return  {
         "categories": [
-            [{"id": f"{int(x[0])}", "name": f"{x[1]}"} for x in data]
+            {"id": int(x[0]), "name": f"{x[1]}"} for x in data
             ]
     }
 @app.get("/customers")
