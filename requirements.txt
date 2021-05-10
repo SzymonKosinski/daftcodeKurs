@@ -15,3 +15,5 @@ sqlparse==0.4.1
 starlette==0.13.6
 typing-extensions==3.7.4.3
 uvicorn==0.13.4
+
+aiosqlite~=0.17.0

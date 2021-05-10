@@ -1,3 +1,4 @@
+import aiosqlite
 from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -7,7 +8,24 @@ from datetime import date, timedelta
 from pydantic import BaseModel
 import random
 import string
+import sqlite3
 
+
+
+
+app = FastAPI()
+conn = sqlite3.connect("northwind.db")
+app.access_tokens = []
+app.access_logins = []
+
+def testBazy():
+    with sqlite3.connect("northwind.db") as connection:
+        connection.text_factory = lambda b: b.decode(errors="ignore")
+        cursor = connection.cursor()
+        products = cursor.execute("SELECT ProductName FROM Products").fetchall()
+        print(len(products))
+        print(products[4])
+testBazy()
 def get_random_string():
     # choose from all lowercase letter
     letters = string.ascii_lowercase
@@ -15,10 +33,6 @@ def get_random_string():
     return result_str
 
 
-print(get_random_string())
-app = FastAPI()
-app.access_tokens = []
-app.access_logins = []
 def number_of_letters(word):
     result = 0
     for character in word:
@@ -199,4 +213,28 @@ def logged_out(response: Response, format: str=""):
     else:
         result = "Logged out!"
         return PlainTextResponse(content=result, status_code=200)
+
+@app.on_event("startup")
+async def startup():
+    app.db_connection = await aiosqlite.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await app.db_connection.close()
+@app.get("/categories")
+async def categories(response: Response):
+    cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
+    data = await cursor.fetchall()
+    print(data)
+    return  {
+        "categories": [
+            [{"id": f"{int(x[0])}", "name": f"{x[1]}"} for x in data]
+            ]
+    }
+@app.get("/customers")
+def customers(response: Response):
+    pass
+
 # uvicorn main:app
