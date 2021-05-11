@@ -274,5 +274,15 @@ async def employees(response: Response, limit: int = 100, offset: int = 0, order
                             OFFSET :offset''',
                             {'limit': limit, 'offset': offset}).fetchall()
     return {"employees": data}
+@app.get("/products_extended")
+async def products_extended(response: Response):
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    data = cursor.execute(
+        '''SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier
+           FROM Products p 
+           JOIN Categories c ON p.CategoryID = c.CategoryID 
+           JOIN Suppliers s ON p.SupplierID = s.SupplierID''').fetchall()
+    return {"products_extended": data}
 # uvicorn main:app
 
