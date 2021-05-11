@@ -274,33 +274,35 @@ async def employees(response: Response, limit: int = 100, offset: int = 0, order
                             OFFSET :offset''',
                             {'limit': limit, 'offset': offset}).fetchall()
     return {"employees": data}
-@app.get("/products_extended")
-async def products_extended(response: Response):
-    cursor = app.db_connection.cursor()
-    cursor.row_factory = sqlite3.Row
-    data = cursor.execute(
-        '''SELECT p.ProductID id, p.ProductName name, c.CategoryName category, s.CompanyName supplier
-           FROM Products p 
-           JOIN Categories c ON p.CategoryID = c.CategoryID 
-           JOIN Suppliers s ON p.SupplierID = s.SupplierID''').fetchall()
-    return {"products_extended": data}
+
 @app.get("/products/{id}/orders")
-async def orders(response: Response, id: int):
-    cursor = app.db_connection.cursor()
-    cursor.row_factory = sqlite3.Row
-    data = cursor.execute(
-        '''SELECT o.OrderID id, c.CompanyName customer, 
-	              od.Quantity quantity,
-	              ROUND((od.UnitPrice * od.Quantity) - od.Discount * (od.UnitPrice * od.Quantity),2) total_price
-           FROM Orders o 
-	              JOIN Customers c ON o.CustomerID = c.CustomerID 
-	              JOIN "Order Details" od ON o.OrderID = od.OrderID	
-           WHERE od.ProductID = :id
-        ''', {"id": id}).fetchall()
-    if data:
-        return {"orders": data}
-    else:
-        raise HTTPException(status_code=404)
+async def products_id_orders(id: int):
+    def total(x):
+        unitPrice = x[2]
+        quantity = x[3]
+        discount = x[4]
+        return float("{:.2f}".format((1 - discount) * unitPrice * quantity))
+
+    orders = app.db_connection.execute(f'''
+                    SELECT Orders.OrderID,
+                           Customers.CompanyName,
+                           [Order Details].UnitPrice,
+                           [Order Details].Quantity,
+                           [Order Details].Discount,
+                           [Order Details].ProductID
+                    FROM Orders
+                    JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+                    JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+                    WHERE [Order Details].ProductID = {id};
+                    ''').fetchall()
+
+    if not orders:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return {"orders": [{"id": x[0],
+                        "customer": x[1],
+                        "quantity": x[3],
+                        "total_price": total(x)} for x in orders]}
+
 
 # uvicorn main:app
 
