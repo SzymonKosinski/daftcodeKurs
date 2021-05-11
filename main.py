@@ -289,15 +289,15 @@ async def orders(response: Response, id: int):
     cursor = app.db_connection.cursor()
     cursor.row_factory = sqlite3.Row
     data = cursor.execute(
-        '''SELECT Orders.OrderID id, c.CompanyName customer, 
-                  od.Quantity quantity,
-                  ROUND((od.UnitPrice * od.Quantity) - od.Discount * (od.UnitPrice * od.Quantity),2) total_price
-           FROM Orders
-                  JOIN Customers c ON Orders.CustomerID = c.CustomerID 
-                  JOIN "Order Details" od ON Orders.OrderID = od.OrderID	
+        '''SELECT o.OrderID id, c.CompanyName customer, 
+	              od.Quantity quantity,
+	              ROUND((od.UnitPrice * od.Quantity) - od.Discount * (od.UnitPrice * od.Quantity),2) total_price
+           FROM Orders o 
+	              JOIN Customers c ON o.CustomerID = c.CustomerID 
+	              JOIN "Order Details" od ON o.OrderID = od.OrderID	
            WHERE od.ProductID = :id
         ''', {"id": id}).fetchall()
-    if data is True:
+    if data:
         return {"orders": data}
     else:
         raise HTTPException(status_code=404)
