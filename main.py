@@ -1,5 +1,3 @@
-import json
-
 import aiosqlite
 from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
@@ -20,6 +18,14 @@ conn = sqlite3.connect("northwind.db")
 app.access_tokens = []
 app.access_logins = []
 
+def testBazy():
+    with sqlite3.connect("northwind.db") as connection:
+        connection.text_factory = lambda b: b.decode(errors="ignore")
+        cursor = connection.cursor()
+        products = cursor.execute("SELECT ProductName FROM Products").fetchall()
+        print(len(products))
+        print(products[4])
+testBazy()
 def get_random_string():
     # choose from all lowercase letter
     letters = string.ascii_lowercase
@@ -221,19 +227,15 @@ async def shutdown():
 async def categories(response: Response):
     cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
     data = await cursor.fetchall()
-
-async def categories(response: Response):
-    cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
-    data = await cursor.fetchall()
     print(data)
-    return {
+    return  {
         "categories": [
             {"id": int(x[0]), "name": f"{x[1]}"} for x in data
-        ]
+            ]
     }
 @app.get("/customers")
 async def customers(response: Response):
-    cursor = await app.db_connection.execute("SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, ''))  FROM Customers ORDER BY UPPER(CustomerID)")
+    cursor = await app.db_connection.execute("SELECT CustomerID, CompanyName, Address || ' ' || PostalCode || ' '  || City || ' ' || Country  FROM Customers ORDER BY CustomerID")
     data = await cursor.fetchall()
     return  {
         "customers": [
@@ -241,3 +243,4 @@ async def customers(response: Response):
             ]
     }
 # uvicorn main:app
+
