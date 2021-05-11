@@ -273,6 +273,6 @@ async def employees(response: Response, limit: int = 100, offset: int = 0, order
                             LIMIT :limit 
                             OFFSET :offset''',
                             {'limit': limit, 'offset': offset}).fetchall()
-    return data
+    return {"employees": data}
 # uvicorn main:app
 
