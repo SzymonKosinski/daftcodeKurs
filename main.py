@@ -1,3 +1,5 @@
+import json
+
 import aiosqlite
 from fastapi import FastAPI, HTTPException, Response, status, Cookie
 from fastapi.responses import HTMLResponse
@@ -18,14 +20,6 @@ conn = sqlite3.connect("northwind.db")
 app.access_tokens = []
 app.access_logins = []
 
-def testBazy():
-    with sqlite3.connect("northwind.db") as connection:
-        connection.text_factory = lambda b: b.decode(errors="ignore")
-        cursor = connection.cursor()
-        products = cursor.execute("SELECT ProductName FROM Products").fetchall()
-        print(len(products))
-        print(products[4])
-testBazy()
 def get_random_string():
     # choose from all lowercase letter
     letters = string.ascii_lowercase
@@ -229,7 +223,7 @@ async def categories(response: Response):
     data = await cursor.fetchall()
     return  {
         "categories": [
-            {"id": int(x[0]), "name": f"{x[1]}"} for x in data
+            {"name" : x[0], "id": x[1]}for x in data
             ]
     }
 @app.get("/customers")
