@@ -235,7 +235,7 @@ async def categories(response: Response):
     }
 @app.get("/customers")
 async def customers(response: Response):
-    cursor = await app.db_connection.execute("SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, ''))  FROM Customers ORDER BY UPPER(CustomerID)")
+    cursor = await app.db_connection.execute("SELECT CustomerID, COALESCE(CompanyName, ''), (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, ''))  FROM Customers ORDER BY UPPER(CustomerID)")
     data = await cursor.fetchall()
     return  {
         "customers": [
