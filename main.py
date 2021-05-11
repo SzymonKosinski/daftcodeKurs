@@ -235,12 +235,15 @@ async def categories(response: Response):
     }
 @app.get("/customers")
 async def customers(response: Response):
-    cursor = await app.db_connection.execute("SELECT CustomerID, COALESCE(CompanyName, ''), (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, ''))  FROM Customers ORDER BY UPPER(CustomerID)")
+    cursor = await app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    customers = await cursor.execute(
+        "SELECT CustomerID id, COALESCE(CompanyName, '') name, "
+        "COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || "
+        "COALESCE(Country, '') full_address "
+        "FROM Customers c ORDER BY UPPER(CustomerID);"
+    )
     data = await cursor.fetchall()
-    return  {
-        "customers": [
-            {"id": f"{x[0]}", "name": f"{x[1]}", "full_adress": f"{x[2]}"} for x in data
-            ]
-    }
+    return dict(data=data)
 # uvicorn main:app
 
