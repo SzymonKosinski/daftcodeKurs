@@ -6,6 +6,7 @@ from fastapi import Depends
 from fastapi.responses import PlainTextResponse, JSONResponse,RedirectResponse
 from datetime import date, timedelta
 from pydantic import BaseModel
+from typing import Optional, List
 import random
 import string
 import sqlite3
@@ -258,6 +259,20 @@ async def single_supplier(response: Response, id: int):
     if data is None:
         raise HTTPException (status_code=404, detail="product not found")
 
+    return data
+@app.get("/employees")
+async def employees(response: Response, limit: int = 100, offset: int = 0, order: str = "EmployeeID"):
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    order_by = ['first_name', 'last_name', 'city']
+    if not any(order == possibility for possibility in order_by) and order != "EmployeeID":
+        raise HTTPException (status_code=400, detail="wrong request")
+    data = cursor.execute(f'''SELECT EmployeeID id, LastName last_name, FirstName first_name, City city 
+                            FROM Employees
+                            ORDER BY {order} 
+                            LIMIT :limit 
+                            OFFSET :offset''',
+                            {'limit': limit, 'offset': offset}).fetchall()
     return data
 # uvicorn main:app
 
