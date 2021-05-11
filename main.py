@@ -250,7 +250,7 @@ async def customers(response: Response):
                                     FROM Customers''').fetchall()
         return {"customers": result}
 @app.get("/products/{id}")
-async def single_supplier( product_id: int, response: Response):
+async def single_supplier(response: Response, product_id: int):
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute(
         "SELECT ProductID, ProductName FROM Products WHERE ProductID = :id",
