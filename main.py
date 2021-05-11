@@ -253,7 +253,7 @@ async def customers(response: Response):
 async def single_supplier(response: Response, id: int):
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute(
-        "SELECT ProductID, ProductName FROM Products WHERE ProductID = :id",
+        "SELECT ProductID as id, ProductName as name FROM Products WHERE ProductID = :id",
                             {"id": id}).fetchone()
     if data is None:
         raise HTTPException (status_code=404, detail="product not found")
