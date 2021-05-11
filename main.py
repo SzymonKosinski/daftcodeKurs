@@ -315,7 +315,7 @@ class CreatedCategory(BaseModel):
 @app.post("/categories", status_code=201, response_model=CreatedCategory)
 async def create_category(category: Category):
     cursor = app.db_connection.execute(
-        "INSERT INTO Categories (CategoryName) VALUES ?", (category.name, ))
+        "INSERT INTO Categories (CategoryName) VALUES (?)", (category.name, ))
     app.db_connection.commit()
     return {"id": cursor.lastrowid,
             "name": category.name}
