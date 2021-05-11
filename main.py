@@ -284,5 +284,23 @@ async def products_extended(response: Response):
            JOIN Categories c ON p.CategoryID = c.CategoryID 
            JOIN Suppliers s ON p.SupplierID = s.SupplierID''').fetchall()
     return {"products_extended": data}
+@app.get("/products/{id}/orders")
+async def orders(response: Response, id: int):
+    cursor = app.db_connection.cursor()
+    cursor.row_factory = sqlite3.Row
+    data = cursor.execute(
+        '''SELECT Orders.OrderID id, c.CompanyName customer, 
+                  od.Quantity quantity,
+                  ROUND((od.UnitPrice * od.Quantity) - od.Discount * (od.UnitPrice * od.Quantity),2) total_price
+           FROM Orders
+                  JOIN Customers c ON Orders.CustomerID = c.CustomerID 
+                  JOIN "Order Details" od ON Orders.OrderID = od.OrderID	
+           WHERE od.ProductID = :id
+        ''', {"id": id}).fetchall()
+    if data is True:
+        return {"orders": data}
+    else:
+        raise HTTPException(status_code=404)
+
 # uvicorn main:app
 
