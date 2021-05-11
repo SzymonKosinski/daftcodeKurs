@@ -216,34 +216,38 @@ def logged_out(response: Response, format: str=""):
 
 @app.on_event("startup")
 async def startup():
-    app.db_connection = await aiosqlite.connect("northwind.db")
+    app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    await app.db_connection.close()
+     app.db_connection.close()
 @app.get("/categories")
 async def categories(response: Response):
-    cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
-    data = await cursor.fetchall()
+    cursor = app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
+    data = cursor.fetchall()
     print(data)
     return  {
         "categories": [
             {"id": int(x[0]), "name": f"{x[1]}"} for x in data
             ]
     }
+def xstr(s):
+    if s is None:
+        return ''
+    return str(s)
 @app.get("/customers")
 async def customers(response: Response):
-    cursor = await app.db_connection.cursor()
-    cursor.row_factory = sqlite3.Row
-    customers = await cursor.execute(
-        "SELECT CustomerID id, COALESCE(CompanyName, '') name, "
-        "COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || "
-        "COALESCE(Country, '') full_address "
-        "FROM Customers c ORDER BY UPPER(CustomerID);"
-    )
-    data = await cursor.fetchall()
-    return dict(data=data)
+        cursor = app.db_connection.cursor()
+        cursor.row_factory = lambda cursor, col: {"id": col[0],
+                                                  "name": col[1],
+                                                  "full_address": xstr(col[2]) + " "
+                                                                  + xstr(col[3]) + " "
+                                                                  + xstr(col[4]) + " "
+                                                                  + xstr(col[5])}
+        result = cursor.execute('''SELECT CustomerID, CompanyName, Address, PostalCode, City, Country 
+                                    FROM Customers''').fetchall()
+        return {"customers": result}
 # uvicorn main:app
 
