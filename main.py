@@ -222,14 +222,15 @@ async def categories(response: Response):
     cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
     data = await cursor.fetchall()
 
-    async def categories(response: Response):
-        cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
-        data = await cursor.fetchall()
-        return {
-            "categories": [
-                {"id": int(x[0]), "name": f"{x[1]}"} for x in data
-            ]
-        }
+async def categories(response: Response):
+    cursor = await app.db_connection.execute("SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID")
+    data = await cursor.fetchall()
+    print(data)
+    return {
+        "categories": [
+            {"id": int(x[0]), "name": f"{x[1]}"} for x in data
+        ]
+    }
 @app.get("/customers")
 async def customers(response: Response):
     cursor = await app.db_connection.execute("SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, ''))  FROM Customers ORDER BY UPPER(CustomerID)")
